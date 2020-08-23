@@ -6,4 +6,5 @@ RUN pip install -r requeriments.txt
 RUN export FLASK_APP=server.py
 RUN LC_ALL=en_US
 RUN export LC_ALL
+RUN celery multi stop w1 -A proj -l info
 CMD python -m flask run --host=0.0.0.0

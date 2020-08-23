@@ -15,6 +15,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=1234
       - POSTGRES_DB=rssfeed
+      - BROKER_HOST=rabbitmq
     networks:
       - net1
 
@@ -31,6 +32,12 @@ services:
       - POSTGRES_DB=rssfeed
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=1234
+    networks:
+      - net1
+
+  rabbitmq:
+    image: rabbitmq
+    container_name: rabbitmq
     networks:
       - net1
 

@@ -4,6 +4,7 @@ from repository import SubscriptionRepository
 import json
 import os
 from provider_postgres import PostgresProvider
+from tasks import add
 app = Flask(__name__)
 
 
@@ -31,3 +32,21 @@ def add_subscription():
 
 
     return app.response_class(status=201, mimetype='application/json', response=json.dumps(response))
+
+
+@app.route('/api/v1/subscription/update', methods=['POST'])
+def update_subscription_content():
+    result = add.delay(4, 4)
+    """while not result.ready():
+        print(result.ready())
+        print(result.backendc)"""
+
+
+    response = {
+        'data':'OK'
+    }
+
+
+    return app.response_class(status=200, mimetype='application/json', response=json.dumps(response))
+
+
