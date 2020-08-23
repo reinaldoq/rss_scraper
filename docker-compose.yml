@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  api:
+    image: rq/api-scraper:latest
+    container_name: api
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/source
+    environment:
+      - FLASK_APP=server.py
+      - FLASK_ENV=development
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=rssfeed
+    networks:
+      - net1
+
+
+  db:
+    image: postgres
+    container_name: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data22:/var/lib/postgres
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_DB=rssfeed
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+    networks:
+      - net1
+
+
+volumes:
+  db_data22:
+
+networks:
+  net1:
+
