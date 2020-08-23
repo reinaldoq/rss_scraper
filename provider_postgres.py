@@ -30,6 +30,7 @@ class PostgresProvider(object):
         cursor = self.cnx.cursor()
         cursor.execute(query)
         id_of_new_row = cursor.fetchone()[0]
+        self.cnx.commit()
         return id_of_new_row
 
     #list o select
@@ -44,4 +45,6 @@ class PostgresProvider(object):
     def update(self, query):
         cursor = self.cnx.cursor()
         cursor.execute(query)
+        self.cnx.commit()
         return 0
+

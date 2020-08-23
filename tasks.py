@@ -1,20 +1,25 @@
 from celery import Celery
 import os
 import requests
+from repository import SubscriptionRepository
+from provider_postgres import PostgresProvider
+
 
 
 app = Celery('tasks',backend='rpc://', broker='pyamqp://guest@'+os.environ['BROKER_HOST']+'//')
 
-@app.task
+#@app.task
 def update_subscription():
-    #db y traer listado de subscripciones,
-    #select id,url from subscription
-    subscriptions = [
-        {'url': 'http://www.nu.nl/rss/Algemeen',
-        'id':1},
-        {'url':'https://feeds.feedburner.com/tweakers/mixed',
-         'id':2}
-    ]
+    db = PostgresProvider(
+        os.environ['POSTGRES_USER'],
+        os.environ['POSTGRES_PASSWORD'],
+        os.environ['POSTGRES_HOST'],
+        os.environ['POSTGRES_DB'])
+
+    db.connect()
+    repository = SubscriptionRepository(db)
+    subscriptions = repository.get_all_subscriptions()
+
     for s in subscriptions:
         new_data = download(s['url'])
         store_data(s['id'], new_data)
