@@ -5,6 +5,8 @@ import json
 import os
 from provider_postgres import PostgresProvider
 from tasks import update_subscription
+from tasks import scraper
+from tasks import scraper
 
 app = Flask(__name__)
 
@@ -32,8 +34,9 @@ def get_subscription():
         subscription_list.append(rsp)
 
     response = {
-            'row': subscription_list,
+        'data': subscription_list,
     }
+
 
     return app.response_class(status=200, mimetype='application/json', response=json.dumps(response))
 
@@ -60,10 +63,7 @@ def add_subscription():
 
 @app.route('/api/v1/subscription/update', methods=['POST'])
 def update_subscription_content():
-    result = update_subscription()
-    """while not result.ready()
-        print(result.ready())
-        print(result.backendc)"""
+    result = scraper()
 
     response = {
         'data': result
@@ -82,12 +82,72 @@ def delete_subscription(id):
 
     db.connect()
 
-    #id = request.args.get('id')
+    # id = request.args.get('id')
     repository = SubscriptionRepository(db)
     deleted = repository.delete_subscriptions(id)
     response = {
         'data': deleted
     }
 
+    return app.response_class(status=201, mimetype='application/json', response=json.dumps(response))
+
+@app.route('/api/v1/feed/<subscription_id>', methods=['GET'])
+def all_feed(subscription_id):
+    return all_feed_by_id(subscription_id)
+
+
+def all_feed_by_id(subscription_id):
+    db = PostgresProvider(
+        os.environ['POSTGRES_USER'],
+        os.environ['POSTGRES_PASSWORD'],
+        os.environ['POSTGRES_HOST'],
+        os.environ['POSTGRES_DB'])
+
+    db.connect()
+
+    filter_items = request.args.get('filter', None)
+
+    repository = SubscriptionRepository(db)
+    feed = repository.get_feed(subscription_id, filter_items)
+
+    feed_list = []
+
+    for s in feed:
+        rsp = {
+            'id': s[0],
+            'title': s[1],
+            'read': s[2]
+        }
+
+        feed_list.append(rsp)
+
+    response = {
+        'data': feed_list,
+    }
+
+    return app.response_class(status=200, mimetype='application/json', response=json.dumps(response))
+
+
+@app.route('/api/v1/feed', methods=['GET'])
+def all_feed_no_id():
+    return all_feed_by_id(None)
+
+
+@app.route('/api/v1/item/<item_id>/read', methods=['POST'])
+def read_item(item_id):
+    db = PostgresProvider(
+        os.environ['POSTGRES_USER'],
+        os.environ['POSTGRES_PASSWORD'],
+        os.environ['POSTGRES_HOST'],
+        os.environ['POSTGRES_DB'])
+
+    db.connect()
+
+    repository = SubscriptionRepository(db)
+    deleted = repository.read_item(item_id)
+    response = {
+        'data': deleted
+    }
 
     return app.response_class(status=201, mimetype='application/json', response=json.dumps(response))
+

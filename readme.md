@@ -33,8 +33,6 @@ OUTPUT:
 POST /api/v1/item/<Item ID>/read
 
 
-POST /api/v1/configure
-
 #COMMANDS
 docker-compose up
 docker-compose down
