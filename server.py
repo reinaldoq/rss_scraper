@@ -1,11 +1,11 @@
-from flask import Flask
-from flask import request
-from repository import SubscriptionRepository
 import json
 import os
+
+from flask import Flask
+from flask import request
+
 from provider_postgres import PostgresProvider
-from tasks import update_subscription
-from tasks import scraper
+from repository import SubscriptionRepository
 from tasks import scraper
 
 app = Flask(__name__)
@@ -36,7 +36,6 @@ def get_subscription():
     response = {
         'data': subscription_list,
     }
-
 
     return app.response_class(status=200, mimetype='application/json', response=json.dumps(response))
 
@@ -72,8 +71,8 @@ def update_subscription_content():
     return app.response_class(status=200, mimetype='application/json', response=json.dumps(response))
 
 
-@app.route('/api/v1/subscription/<id>', methods=['POST'])
-def delete_subscription(id):
+@app.route('/api/v1/subscription/<subscription_id>', methods=['POST'])
+def delete_subscription(subscription_id):
     db = PostgresProvider(
         os.environ['POSTGRES_USER'],
         os.environ['POSTGRES_PASSWORD'],
@@ -84,12 +83,13 @@ def delete_subscription(id):
 
     # id = request.args.get('id')
     repository = SubscriptionRepository(db)
-    deleted = repository.delete_subscriptions(id)
+    deleted = repository.delete_subscriptions(subscription_id)
     response = {
         'data': deleted
     }
 
     return app.response_class(status=201, mimetype='application/json', response=json.dumps(response))
+
 
 @app.route('/api/v1/feed/<subscription_id>', methods=['GET'])
 def all_feed(subscription_id):
@@ -150,4 +150,3 @@ def read_item(item_id):
     }
 
     return app.response_class(status=201, mimetype='application/json', response=json.dumps(response))
-

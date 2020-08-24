@@ -1,42 +1,14 @@
-from celery import Celery
 import os
-import requests
-from repository import SubscriptionRepository
-from provider_postgres import PostgresProvider
-from bs4 import BeautifulSoup
-import json
 from datetime import datetime
-import lxml
+
+import requests
+from bs4 import BeautifulSoup
+from celery import Celery
+
+from provider_postgres import PostgresProvider
+from repository import SubscriptionRepository
 
 app = Celery('tasks', backend='rpc://', broker='pyamqp://guest@' + os.environ['BROKER_HOST'] + '//')
-
-
-# @app.task
-def update_subscription():
-    db = PostgresProvider(
-        os.environ['POSTGRES_USER'],
-        os.environ['POSTGRES_PASSWORD'],
-        os.environ['POSTGRES_HOST'],
-        os.environ['POSTGRES_DB'])
-
-    db.connect()
-    repository = SubscriptionRepository(db)
-    subscriptions = repository.get_all_subscriptions()
-
-    for s in subscriptions:
-        new_data = download(s['url'])
-        store_data(s['id'], new_data)
-
-
-def download(url):
-    return requests.get(url)
-
-
-def store_data(id_subscription, new_data):
-    # guardr esto en db
-    for d in new_data:
-        # insert into subscription_data crear esta tabal nueva
-        pass
 
 
 def scraper():
@@ -50,9 +22,6 @@ def scraper():
     repository = SubscriptionRepository(db)
     subscriptions = repository.get_all_subscriptions()
 
-
-    article_list = []
-
     try:
         for s in subscriptions:
             # execute my request, parse the data using XML
@@ -63,7 +32,7 @@ def scraper():
             # select only the "items" I want from the data
             articles = soup.findAll('item')
 
-            articles_in_subscription =[]
+            articles_in_subscription = []
 
             # for each "item" I want, parse it into a list
             for a in articles:

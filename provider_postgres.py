@@ -1,10 +1,8 @@
 # coding: utf-8
 import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
 class PostgresProvider(object):
-
     cnx = None
 
     def __init__(self, username, password, server, database):
@@ -25,7 +23,6 @@ class PostgresProvider(object):
         except Exception as err:
             raise err
 
-
     def insert(self, query):
         cursor = self.cnx.cursor()
         cursor.execute(query)
@@ -33,18 +30,16 @@ class PostgresProvider(object):
         self.cnx.commit()
         return id_of_new_row
 
-    #list o select
+    # list o select
     def query(self, query):
         cursor = self.cnx.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
         return rows
 
-
-    #update o delete
+    # update o delete
     def update(self, query):
         cursor = self.cnx.cursor()
         cursor.execute(query)
         self.cnx.commit()
         return 0
-

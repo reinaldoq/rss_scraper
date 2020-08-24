@@ -3,7 +3,7 @@ class SubscriptionRepository:
         self.db = db
 
     def create_subscription(self, url):
-        query = "insert into subscription(url) values('%s') returning id" % (url)
+        query = "insert into subscription(url) values('%s') returning id" % url
         new_id = self.db.insert(query)
         return new_id
 
@@ -12,8 +12,8 @@ class SubscriptionRepository:
         all_subscriptions = self.db.query(query)
         return all_subscriptions
 
-    def delete_subscriptions(self, id):
-        query = "DELETE FROM subscription WHERE id = %s" % id
+    def delete_subscriptions(self, item_id):
+        query = "DELETE FROM subscription WHERE id = %s" % item_id
         all_subscriptions = self.db.update(query)
         return all_subscriptions
 
@@ -36,7 +36,7 @@ class SubscriptionRepository:
                 link,
                 published,
                 description)
-            new_id = self.db.insert(query)
+            self.db.insert(query)
 
         return 0
 
