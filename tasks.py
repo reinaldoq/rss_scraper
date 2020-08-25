@@ -8,13 +8,15 @@ from celery import Celery
 from provider_postgres import PostgresProvider
 from repository import SubscriptionRepository
 
+
+# To fix
 # app = Celery('tasks', backend='rpc://', broker='pyamqp://guest@' + os.environ['BROKER_HOST'] + '//')
 
-
+# Parse function
 def scrap_feed(articles, subscription_id):
     articles_in_subscription = []
 
-    # for each "item" I want, parse it into a list
+    # Extract info for each article
     for a in articles:
         title = a.find('title').text.replace("'", " ")
         link = a.find('link').text
@@ -22,10 +24,7 @@ def scrap_feed(articles, subscription_id):
         published = datetime.strptime(published_wrong, '%a, %d %b %Y %H:%M:%S %z')
         description = a.find('description').text.replace("'", " ")
 
-        # print(published, published_wrong) # checking correct date format
-
-        # create an "article" object with the data
-        # from each "item"
+        # Save it in a article object
         article = {
             'subscription_id': subscription_id,
             'title': title,
@@ -34,12 +33,16 @@ def scrap_feed(articles, subscription_id):
             'description': description
         }
 
-        # append my "article_list" with each "article" object
+        # Append article to the list
         articles_in_subscription.append(article)
 
+    # Return the list with all articles
     return articles_in_subscription
 
+
+# The Scraper itself
 def scraper():
+    # Connect to the db
     db = PostgresProvider(
         os.environ['POSTGRES_USER'],
         os.environ['POSTGRES_PASSWORD'],
@@ -48,32 +51,28 @@ def scraper():
 
     db.connect()
     repository = SubscriptionRepository(db)
+    # Get all the subscription to scrap from
     subscriptions = repository.get_all_subscriptions()
 
     try:
         for s in subscriptions:
-            # execute my request, parse the data using XML
-            # parser in BS4
+            # Request all item info
             r = requests.get(s[0])
+            # Parse it
             soup = BeautifulSoup(r.content, features='xml')
 
-            # select only the "items" I want from the data
+            # Select just the part needed
             articles = soup.findAll('item')
 
+            # Pass the articles and the subscription id to convert it in an article object
             articles_in_subscription = scrap_feed(articles, s[1])
 
+            # Insert it into the db
             repository.insert_subscription_item(articles_in_subscription)
 
         return 0
 
-        # return save_function(article_list)
+    # If something goes wrong it raises an exception
     except Exception as e:
-        print('The scraping job failed. See exception:')
+        print('Error in the scraping process:')
         print(e)
-
-# terminar todos los endpoints
-# crear las tablas que falta, tablas apra datos y tabla de config
-# terminar el job de celery para descargar los datos
-# - conectar a la db y conseguir lista de todas als subscripciones
-# - descargar el contenido del rss y parsearlo a modo texto
-# - guardar la data en la db
