@@ -39,4 +39,12 @@ docker-compose down
 docker-compose up -d 
 docker-compose logs -f api
 
+proceso de isnta en produccion
 
+base de datos incializar con script cretdb sql carptea
+elnombe debe ser rssfeed
+
+crear un container con el puerto 5000 expuesto
+inicializar variables de entorno
+
+para instalar hay que crear la iamgen con dcoker build y crear la imagen a aprtir de coker file adjunto y a partir de ahi crear el conteiner
