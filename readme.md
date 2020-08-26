@@ -1,74 +1,86 @@
-#RSS Scraper
-Simple API service to scrap RSS feeds and obtain items from those feeds.
+## RSS Scraper
 
-**Production deployment**
-Generate Docker image from Dockerfile
-`docker build -t rq/api-scraper:latest .
-`
-Create a container exposing port 5000.
+Simple API service to scrap RSS feeds and obtain items from those feeds.  
+  
 
-Initialize database with the file in:
-`rss_scraper/docker-entrypoint-initdb.d/create_db.sql`
+## **Production deployment**
 
-Name the database rssfeeed
+Generate Docker image from Dockerfile  
 
-Initialize environment variables:
-`POSTGRES_USER
-POSTGRES_PASSWORD
-POSTGRES_HOST
-POSTGRES_DB`
+    docker build -t rq/api-scraper:latest .  
+      
 
-**Commands**
-Start service
-'docker-compose up
-'
-Stop service
-'docker-compose down
-'
-Start service with no logs
-'docker-compose up -d 
-'
-Start service watching api/db logs
-docker-compose logs -f api/db
+Create a container exposing port 5000.  
+  
+Initialize database with the file in:  
 
-**Endpoints**
-Consult all existing subscriptions_
-GET /api/v1/subscription
-```angular2html
-OUTPUT
-{
-    url: <Feed's URL>
-    id: <Subscription ID>
-}
-```
+    rss_scraper/docker-entrypoint-initdb.d/create_db.sql  
 
-Add a new subscription
-POST /api/v1/subscription
-```angular2html
-INPUT BODY
-{
-    url: <Feed's URL>
-}
-```
+  
+Name the database rssfeed  
+  
+Initialize environment variables:  
 
-Delete existing subscription
-POST /api/v1/subscription/<Subscription ID>
+    POSTGRES_USER  
+    POSTGRES_PASSWORD  
+    POSTGRES_HOST  
+    POSTGRES_DB`  
 
-Update all subscriptions
-POST /api/v1/subscription/update
+  
 
-GET /api/v1/feed/<Subscription ID>
-```angular2html
-PARAMETERS: 
-    Filter: read/unread/If not provide returns globally
+## **Commands**
 
-OUTPUT:
-    [{
-    id: Feed item unique ID.
-    text: Item text.
-    status: Read/Unread
-    }]
-```
+Start service  
 
-Mark item as read
+    docker-compose up  
+
+Stop service  
+
+    docker-compose down  
+
+Start service with no logs  
+
+    docker-compose up -d
+
+Start service watching api/db logs  
+
+    docker-compose logs -f api/db  
+
+  
+
+## **Endpoints**
+
+**Consult all existing subscriptions**
+GET /api/v1/subscription  
+```angular2html  
+OUTPUT  
+{  
+ url: <Feed's URL> id: <Subscription ID>}  
+```  
+  
+**Add a new subscription**  
+POST /api/v1/subscription  
+```angular2html  
+INPUT BODY  
+{  
+ url: <Feed's URL>}  
+```  
+  
+**Delete existing subscription**  
+POST /api/v1/subscription/<Subscription ID>  
+  
+**Update all subscriptions**  
+POST /api/v1/subscription/update  
+  
+  **Get filtered/unfiltered items**  
+GET /api/v1/feed/<Subscription ID>  
+
+    PARAMETERS:   
+        Filter: read/unread/If not provide returns globally  
+      
+    OUTPUT:  
+     [{ id: Feed item unique ID. text: Item text. status: Read/Unread }]
+
+  
+**Mark item as read**  
 POST /api/v1/item/<Item ID>/read
